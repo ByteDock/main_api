@@ -5,16 +5,38 @@ import dotenv from 'dotenv';
 import http from 'http';
 import { BaseHelper } from './interfaces/BaseHelper';
 import { Path } from './interfaces/Path';
+import { Db, MongoClient } from 'mongodb';
 
 dotenv.config();
 
 const app = express();
 const port: number = process.env.PORT !== null ? parseInt(process.env.PORT as string) : 3000;
 const host = process.env.HOST || 'localhost';
+const uri = process.env.MONGO_URI || 'mongodb://localhost:27017';
+const db_name = process.env.MONGO_DBNAME || 'ByteDock';
+
+const client = new MongoClient(uri);
+
+let db: Db | undefined;
+
+async function connect() {
+    await client.connect();
+    db = client.db(db_name);
+    console.log('Connected to MongoDB');
+}
+
+export function getMongoClient() {
+    return client;
+}
+
+export function getDb() {
+    return db;
+}
 
 const s = http.createServer(app);
 
-const server = s.listen(port, host, () => {
+const server = s.listen(port, host, async () => {
+    await connect();
     console.log(`API running on http://${host}:${port}`);
 });
 

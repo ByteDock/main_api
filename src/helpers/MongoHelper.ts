@@ -1,38 +1,19 @@
+import { getDb, getMongoClient } from "..";
 import { BaseHelper } from "../interfaces/BaseHelper";
 import { MongoClient, Db, OptionalId, Document, Filter, FindOptions, UpdateFilter, WithoutId } from "mongodb";
+import { UserDocument } from "../interfaces/UserDocument";
 
 export class MongoHelper implements BaseHelper {
-    private uri: string = process.env.MONGO_URI ? process.env.MONGO_URI : "mongodb://localhost:27017";
-    private dbName: string = process.env.MONGO_DBNAME ? process.env.MONGO_DBNAME : "ByteDock";
     private client: MongoClient;
     private db: Db | undefined;
 
     constructor() {
-        this.client = new MongoClient(this.uri);
+        this.client = getMongoClient();
+        this.db = getDb();
     }
 
     async initialize(): Promise<void> {
-        await this.connect();
         console.log('Mongo Helper intialized');
-    }
-
-    async connect(): Promise<void> {
-        try {
-            await this.client.connect();
-            this.db = this.client.db(this.dbName);
-        } catch(error) {
-            console.error(`Error connecting to MongoDB: ${error}`);
-            throw error;
-        }
-    }
-
-    async disconnect(): Promise<void> {
-        try {
-            await this.client.close();
-        } catch(error) {
-            console.error(`Error disconnecting from MongoDB: ${error}`);
-            throw error;
-        }
     }
 
     async getCollectionList() {
@@ -62,18 +43,18 @@ export class MongoHelper implements BaseHelper {
         }
     }
 
-    async findOne(collectionName: string, query: Filter<Document>) {
+    async findOne(collectionName: string, query: Filter<Document | UserDocument>) {
         try {
-            return this.db?.collection(collectionName).findOne(query);
+            return this.db?.collection<Document | UserDocument>(collectionName).findOne(query);
         } catch(error) {
             console.error(`Error finding the document: ${error}`);
             throw error;
         }
     }
 
-    async find(collectionName: string, query: Filter<Document>, options: FindOptions<Document>) {
+    async find(collectionName: string, query: Filter<Document | UserDocument>, options: FindOptions<Document |UserDocument>) {
         try {
-            return this.db?.collection(collectionName).find(query, options).toArray();
+            return this.db?.collection<Document | UserDocument>(collectionName).find(query, options).toArray();
         } catch(error) {
             console.error(`Error finding the documents: ${error}`);
             throw error;
