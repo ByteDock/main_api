@@ -7,9 +7,9 @@ export class MongoHelper implements BaseHelper {
     private client: MongoClient;
     private db: Db | undefined;
 
-    constructor() {
-        this.client = getMongoClient();
-        this.db = getDb();
+    constructor(client?: MongoClient, db?: Db) {
+        this.client = client || getMongoClient();
+        this.db = db || getDb();
     }
 
     async initialize(): Promise<void> {
@@ -52,7 +52,7 @@ export class MongoHelper implements BaseHelper {
         }
     }
 
-    async find(collectionName: string, query: Filter<Document | UserDocument>, options: FindOptions<Document |UserDocument>) {
+    async find(collectionName: string, query: Filter<Document | UserDocument>, options?: FindOptions<Document | UserDocument>) {
         try {
             return this.db?.collection<Document | UserDocument>(collectionName).find(query, options).toArray();
         } catch(error) {

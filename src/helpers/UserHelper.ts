@@ -1,4 +1,4 @@
-import { ObjectId, WithId } from "mongodb";
+import { Db, MongoClient, ObjectId, WithId } from "mongodb";
 import { UserDocument } from "../interfaces/UserDocument";
 import { MongoHelper } from "./MongoHelper";
 import bcrypt from "bcrypt";
@@ -6,8 +6,8 @@ import bcrypt from "bcrypt";
 export class UserHelper extends MongoHelper {
     private usersCollection: string = "users";
 
-    constructor() {
-        super();
+    constructor(client?: MongoClient, db?: Db) {
+        super(client, db);
     }
 
     async initialize(): Promise<void> {
